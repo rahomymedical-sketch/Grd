@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدير المهام المتقدم</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6c5ce7;
+            --secondary-color: #a29bfe;
+            --success-color: #00b894;
+            --warning-color: #fdcb6e;
+            --danger-color: #d63031;
+            --info-color: #0984e3;
+            --text-color: #2d3436;
+            --bg-color: #f5f6fa;
+            --card-bg: #ffffff;
+            --border-color: #dfe6e9;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        .dark-theme {
+            --primary-color: #7b7bfe;
+            --secondary-color: #5c5cff;
+            --text-color: #f5f6fa;
+            --bg-color: #1e1e2e;
+            --card-bg: #2a2a3c;
+            --border-color: #39394a;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: var(--transition);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .app-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .theme-toggle {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            width: 50px;
+            height: 26px;
+            border-radius: 50px;
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 0 3px;
+        }
+
+        .theme-toggle i {
+            font-size: 14px;
+            color: var(--text-color);
+        }
+
+        .theme-toggle-ball {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 25px;
+        }
+
+        .folders-section {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            height: fit-content;
+        }
+
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .add-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .folders-list {
+            list-style: none;
+        }
+
+        .folder-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .folder-item:hover {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .folder-item.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .folder-icon {
+            margin-left: 10px;
+            font-size: 18px;
+        }
+
+        .folder-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-left: 10px;
+        }
+
+        .folder-actions {
+            margin-right: auto;
+            display: flex;
+            gap: 8px;
+        }
+
+        .folder-actions button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: inherit;
+            opacity: 0.7;
+        }
+
+        .folder-actions button:hover {
+            opacity: 1;
+        }
+
+        .tasks-section {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .tasks-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .tasks-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .tasks-list {
+            list-style: none;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .task-checkbox {
+            margin-left: 15px;
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 13px;
+            color: var(--secondary-color);
+        }
+
+        .task-meta span {
+            display: flex;
+            align-items: center;
+        }
+
+        .task-meta i {
+            margin-left: 5px;
+        }
+
+        .task-priority {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .priority-high {
+            background-color: rgba(214, 48, 49, 0.15);
+            color: #d63031;
+        }
+
+        .priority-medium {
+            background-color: rgba(253, 203, 110, 0.15);
+            color: #e17055;
+        }
+
+        .priority-low {
+            background-color: rgba(0, 184, 148, 0.15);
+            color: #00b894;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .task-actions button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+
+        .task-actions button:hover {
+            opacity: 1;
+        }
+
+        .add-task-btn {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 25px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-modal {
+            background: transparent;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .color-palette {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .color-option {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .color-option.selected {
+            transform: scale(1.2);
+            box-shadow: 0 0 0 3px var(--card-bg), 0 0 0 5px var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .add-task-btn {
+                bottom: 20px;
+                left: 20px;
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="app-title">مدير المهام المتقدم</h1>
+            <div class="theme-toggle" id="themeToggle">
+                <div class="theme-toggle-ball"></div>
+                <i class="fas fa-sun"></i>
+                <i class="fas fa-moon"></i>
+            </div>
+        </header>
+
+        <div class="main-layout">
+            <div class="folders-section">
+                <div class="section-title">
+                    <h2>المجلدات</h2>
+                    <button class="add-btn" id="addFolderBtn">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <ul class="folders-list" id="foldersList">
+                    <li class="folder-item active">
+                        <div class="folder-color" style="background-color: #6c5ce7;"></div>
+                        <i class="fas fa-folder folder-icon"></i>
+                        <span>الجميع</span>
+                        <div class="folder-actions">
+                            <button><i class="fas fa-pen"></i></button>
+                            <button><i class="fas fa-times"></i></button>
+                        </div>
+                    </li>
+                    <li class="folder-item">
+                        <div class="folder-color" style="background-color: #00b894;"></div>
+                        <i class="fas fa-folder folder-icon"></i>
+                        <span>العمل</span>
+                        <div class="folder-actions">
+                            <button><i class="fas fa-pen"></i></button>
+                            <button><i class="fas fa-times"></i></button>
+                        </div>
+                    </li>
+                    <li class="folder-item">
+                        <div class="folder-color" style="background-color: #fd79a8;"></div>
+                        <i class="fas fa-folder folder-icon"></i>
+                        <span>شخصي</span>
+                        <div class="folder-actions">
+                            <button><i class="fas fa-pen"></i></button>
+                            <button><i class="fas fa-times"></i></button>
+                        </div>
+                    </li>
+                    <li class="folder-item">
+                        <div class="folder-color" style="background-color: #fdcb6e;"></div>
+                        <i class="fas fa-folder folder-icon"></i>
+                        <span>المشاريع</span>
+                        <div class="folder-actions">
+                            <button><i class="fas fa-pen"></i></button>
+                            <button><i class="fas fa-times"></i></button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="tasks-section">
+                <div class="tasks-header">
+                    <h2>المهام</h2>
+                    <div class="tasks-count">5 مهام</div>
+                </div>
+
+                <div class="tasks-filters">
+                    <button class="filter-btn active">الكل</button>
+                    <button class="filter-btn">المكتملة</button>
+                    <button class="filter-btn">غير المكتملة</button>
+                    <select class="filter-btn">
+                        <option>الكل</option>
+                        <option>عالي</option>
+                        <option>متوسط</option>
+                        <option>منخفض</option>
+                    </select>
+                </div>
+
+                <ul class="tasks-list" id="tasksList">
+                    <li class="task-item">
+                        <input type="checkbox" class="task-checkbox">
+                        <div class="task-content">
+                            <div class="task-title">تصميم واجهة المستخدم الجديدة</div>
+                            <div class="task-meta">
+                                <span><i class="far fa-calendar"></i> 2023-10-15</span>
+                                <span><i class="far fa-clock"></i> متوسط</span>
+                                <span class="task-priority priority-high">عالي</span>
+                            </div>
+                        </div>
+                        <div class="task-actions">
+                            <button><i class="fas fa-pen"></i></button>
+                            <button><i class="fas fa-times"></i></button>
+                        </div>
+                    </li>
+                    <li class="task-item">
+                        <input type="checkbox" class="task-checkbox">
+                        <div class="task-content">
+                            <div class="task-title">مراجعة تقرير المبيعات</div>
+                            <div class="task-meta">
+                                <span><i class="far fa-calendar"></i> 2023-10-12</span>
+                                <span><i class="far fa-clock"></i> سهل</span>
+                                <span class="task-priority priority-medium">متوسط</span>
+                            </div>
+                        </div>
+                        <div class="task-actions">
+                            <button><i class="fas fa-pen"></i></button>
+                            <button><i class="fas fa-times"></i></button>
+                        </div>
+                    </li>
+                    <li class="task-item">
+                        <input type="checkbox" class="task-checkbox">
+                        <div class="task-content">
+                            <div class="task-title">اجتماع مع فريق التطوير</div>
+                            <div class="task-meta">
+                                <span><i class="far fa-calendar"></i> 2023-10-10</span>
+                                <span><i class="far fa-clock"></i> صعب</span>
+                                <span class="task-priority priority-low">منخفض</span>
+                            </div>
+                        </div>
+                        <div class="task-actions">
+                            <button><i class="fas fa-pen"></i></button>
+                            <button><i class="fas fa-times"></i></button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <button class="add-task-btn" id="addTaskBtn">
+            <i class="fas fa-plus"></i>
+        </button>
+    </div>
+
+    <!-- نموذج إضافة مجلد -->
+    <div class="modal" id="folderModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>إضافة مجلد جديد</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>اسم المجلد</label>
+                <input type="text" class="form-control" placeholder="أدخل اسم المجلد">
+            </div>
+            <div class="form-group">
+                <label>لون المجلد</label>
+                <div class="color-palette">
+                    <div class="color-option selected" style="background-color: #6c5ce7;"></div>
+                    <div class="color-option" style="background-color: #00b894;"></div>
+                    <div class="color-option" style="background-color: #fd79a8;"></div>
+                    <div class="color-option" style="background-color: #fdcb6e;"></div>
+                    <div class="color-option" style="background-color: #0984e3;"></div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-secondary">إلغاء</button>
+                <button class="btn btn-primary">حفظ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نموذج إضافة مهمة -->
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>إضافة مهمة جديدة</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>عنوان المهمة</label>
+                <input type="text" class="form-control" placeholder="أدخل عنوان المهمة">
+            </div>
+            <div class="form-group">
+                <label>وصف المهمة</label>
+                <textarea class="form-control" rows="3" placeholder="أدخل وصف المهمة"></textarea>
+            </div>
+            <div class="form-group">
+                <label>المجلد</label>
+                <select class="form-control">
+                    <option>العمل</option>
+                    <option>شخصي</option>
+                    <option>المشاريع</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>تاريخ الاستحقاق</label>
+                <input type="date" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>الأهمية</label>
+                <select class="form-control">
+                    <option>عالي</option>
+                    <option>متوسط</option>
+                    <option>منخفض</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>الصعوبة</label>
+                <select class="form-control">
+                    <option>سهل</option>
+                    <option>متوسط</option>
+       
